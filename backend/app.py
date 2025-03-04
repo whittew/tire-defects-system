@@ -2,11 +2,14 @@ from flask import Flask, request, jsonify
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import StandardScaler
+from flask_cors import CORS
 import numpy as np
 import pickle
 
 # Инициализация Flask
 app = Flask(__name__)
+
+CORS(app)
 
 # Загрузка модели и scaler
 model = load_model('tire_model_defects.h5', custom_objects={

@@ -27,12 +27,12 @@ function App() {
   const predict = async () => {
     try {
       console.log('Отправляем запрос с параметрами:', params); // Проверка входных данных
-      const response = await axios.post('http://localhost:5000/predict', {
+      const response = await axios.post('http://127.0.0.1:5000/predict', {
         Diameter: parseFloat(params.Diameter) || 0,
         Temperature: parseFloat(params.Temperature) || 0,
         Pressure: parseFloat(params.Pressure) || 0,
         Time: parseFloat(params.Time) || 0,
-        Thickness: parseFloat(params.Thickness) || 0, // Исправлено с Time на Thickness
+        Thickness: parseFloat(params.Thickness) || 0, 
         Mold_Temperature: parseFloat(params.Mold_Temperature) || 0,
         Steam_Pressure: parseFloat(params.Steam_Pressure) || 0,
         Heat_Rate: parseFloat(params.Heat_Rate) || 0
@@ -87,7 +87,7 @@ function App() {
               {Object.entries(predictions).map(([defect, prob]) => (
                 <tr key={defect}>
                   <td>{defect}</td>
-                  <td>{prob.toFixed(2)}</td>
+                  <td>{(prob * 100).toFixed(0)}</td>
                 </tr>
               ))}
             </tbody>
