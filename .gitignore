@@ -1,0 +1,15 @@
+# Исключение виртуального окружения
+backend/venv/
+
+# Исключение зависимостей React
+react-front/node_modules/
+
+# Исключение больших файлов модели
+backend/tire_model_defects.h5
+backend/scaler.pkl
+
+# Исключение временных файлов Python
+backend/__pycache__/
+
+# Дополнительно (если есть)
+*.log
