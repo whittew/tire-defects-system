@@ -14,6 +14,25 @@ function App() {
     Steam_Pressure: '',
     Heat_Rate: ''
   });
+  const paramLabels = {
+    Diameter: 'Диаметр',
+    Temperature: 'Температура',
+    Pressure: 'Давление',
+    Time: 'Время',
+    Thickness: 'Толщина',
+    Mold_Temperature: 'Температура формы',
+    Steam_Pressure: 'Давление пара',
+    Heat_Rate: 'Скорость нагрева'
+  };
+  
+  const labels = {
+    Normal_Prob: 'Норма',
+    Bubble_Prob: 'Пузыри',
+    Crack_Prob: 'Трещины',
+    Uneven_Prob: 'Неравномерность',
+    Damage_Prob: 'Повреждения'
+  };
+  
 
   // Состояние для предсказаний
   const [predictions, setPredictions] = useState(null);
@@ -56,44 +75,58 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Tire Defect Prediction</h1>
-      <div>
-        <h2>Input Parameters</h2>
-        {Object.keys(params).map((key) => (
-          <div key={key}>
-            <label>{key}: </label>
-            <input
-              type="number"
-              name={key}
-              value={params[key]}
-              onChange={handleChange}
-              placeholder={key}
-            />
-          </div>
-        ))}
-        <button onClick={predict}>Predict Now</button>
-      </div>
-      {predictions && (
-        <div>
-          <h2>Predictions</h2>
-          <table border="1">
-            <thead>
-              <tr>
-                <th>Defect</th>
-                <th>Probability</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(predictions).map(([defect, prob]) => (
-                <tr key={defect}>
-                  <td>{defect}</td>
-                  <td>{(prob * 100).toFixed(0)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <h1>Прогнозирование дефектов</h1>
+      <div className="form-container">
+        <div className="inputs-container">
+          <h2>Вводимые параметры:</h2>
+          {Object.keys(params).map((key) => (
+            <div className="input-group" key={key}>
+              <label>{paramLabels[key]}: </label>
+              <input
+                type="number"
+                name={key}
+                value={params[key]}
+                onChange={handleChange}
+                onKeyDown={(e) => {
+                  // Отменяем ввод с клавиш стрелок и других символов
+                  if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "." || e.key === "e" || e.key === "E") {
+                    e.preventDefault(); // Останавливаем действие клавиши
+                  }
+                }}
+                onInput={(e) => {
+                  // Очищаем любые символы, кроме чисел
+                  e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                }}
+                placeholder={key}
+              />
+            </div>
+          ))}
+          <button onClick={predict}>Показать вероятность дефекта</button>
         </div>
-      )}
+        <div className="table-container">
+          {predictions && (
+            <div>
+              <h2>Вероятность:</h2>
+              <table border="1">
+                <thead>
+                  <tr>
+                    <th>Дефект:</th>
+                    <th>Вероятность:</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(predictions).map(([defect, prob]) => (
+                    <tr key={defect}>
+                      <td>{labels[defect]}</td>
+                      <td>{(prob * 100).toFixed(0)} %</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
