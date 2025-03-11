@@ -6,7 +6,16 @@
   gap: 100px; /* Пространство между блоками ввода и таблицей */
   width: 100%;
   /* max-width: 2000px; Ограничиваем максимальную ширину */
-  margin-left: 5%;
+  /* margin-left: 5%; */
+}
+
+body{
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  /* height: 100%; */
+  /* width: 100%;
+  height: 100%;
+  overflow: hidden; */
 }
 
 /* Стили для блока с полями ввода */
@@ -14,8 +23,15 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start; /* Выровняем поля по левому краю */
-  width: 100%;
+  /* width: 100%; */
   max-width: 400px; /* Делаем контейнер фиксированной ширины */
+  background-color: #f4f4f4;
+  width: calc(100% + 40px); /* Делаем контейнер шире на 40px */
+  max-width: 500px; /* Ограничение по ширине */
+  padding: 20px;
+  border-radius: 20px; /* Скругляем углы */
+  margin-left: -20px; /* Смещаем фон влево */
+  margin-right: -20px; /* Смещаем фон вправо */
 }
 
 /* Стили для полей ввода */
@@ -49,7 +65,8 @@
 }
 
 .input-group input {
-  flex-grow: 1; /* Растягиваем поле ввода на всю доступную ширину */
+  /* flex-grow: 1; Растягиваем поле ввода на всю доступную ширину */
+  width: 35%;
   height: 30px;
   padding: 5px;
   border: 1px solid #ccc;
@@ -81,14 +98,24 @@ button:hover {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 100%;
+  /* width: 100%; */
   max-width: 500px; /* Ширина таблицы */
+  background-color: #f4f4f4;
+  width: calc(100% + 40px); /* Делаем контейнер шире на 40px */
+  max-width: 500px; /* Ограничение по ширине */
+  padding: 20px;
+  border-radius: 20px; /* Скругляем углы */
+  margin-left: -20px; /* Смещаем фон влево */
+  margin-right: -20px; /* Смещаем фон вправо */
 }
 
 table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
   margin-top: 20px;
+  background-color: white;
+  border-radius: 10px;
+  border-spacing: 0;
 }
 
 th, td {
@@ -108,4 +135,55 @@ h1 {
 
 body {
   overflow-x: hidden;
+}
+
+thead th{
+  background-color: #007bff !important; /* Принудительно устанавливаем цвет */
+  color: white !important; /* Белый текст */
+}
+
+.skr_l_u {
+  border-radius: 10px 0 0 0;
+}
+
+.skr_r_u {
+  border-radius: 0 10px 0 0;
+}
+
+/* Для первой ячейки последней строки (левый нижний угол) */
+tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+/* Для последней ячейки последней строки (правый нижний угол) */
+tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+.issues-list {
+  list-style: none; /* Убираем стандартные точки */
+  padding: 0;
+  text-align: left; /* Выравнивание текста слева для читаемости */
+  font-size: 18px;
+}
+
+.issues-list li {
+  position: relative;
+  padding-left: 15px; /* Отступ для восклицательного знака */
+  margin-bottom: 10px;
+}
+
+.issues-list li::before {
+  content: '!'; /* Восклицательный знак */
+  position: absolute;
+  left: 0;
+  color: red; /* Можно изменить цвет, например, на красный для акцента */
+  font-weight: bold;
+  font-size: 30px;
+  top: 50%; /* Центрируем по вертикали */
+  transform: translateY(-50%); /* Сдвигаем вверх на половину высоты */
+}
+
+.margin-block { 
+  margin-top: 20px;
 }

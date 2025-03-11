@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './Login.css';
 
 const Login = () => {
   const [login, setLogin] = useState('');
@@ -39,7 +40,7 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div className="login-container">
       <h2>Вход</h2>
       <form onSubmit={handleSubmit}>
         <div>
@@ -60,7 +61,7 @@ const Login = () => {
             required
           />
         </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {error && <p>{error}</p>}
         <button type="submit">Войти</button>
       </form>
     </div>

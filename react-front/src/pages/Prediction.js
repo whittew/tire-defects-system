@@ -12,21 +12,21 @@ function Predict() {
     Thickness: '',
     Mold_Temperature: '',
     Steam_Pressure: '',
-    Heat_Rate: ''
+    Heat_Rate: '',
   });
   const paramLabels = {
-    Diameter: 'Диаметр',
-    Temperature: 'Температура',
-    Pressure: 'Давление',
-    Time: 'Время',
-    Thickness: 'Толщина',
-    Mold_Temperature: 'Температура формы',
-    Steam_Pressure: 'Давление пара',
-    Heat_Rate: 'Скорость нагрева'
+    Diameter: 'Диаметр покрышки (Дюймы)',
+    Temperature: 'Температура вулканизации (°C)',
+    Pressure: 'Давление капсулы (Бар)',
+    Time: 'Время вулканизации (мин)',
+    Thickness: 'Толщина резины (мм)',
+    Mold_Temperature: 'Температура формы (°C)',
+    Steam_Pressure: 'Давление пара (Бар)',
+    Heat_Rate: 'Скорость нагрева (°C/мин)'
   };
   
   const labels = {
-    Normal_Prob: 'Норма',
+    // Normal_Prob: 'Норма',
     Bubble_Prob: 'Пузыри',
     Crack_Prob: 'Трещины',
     Uneven_Prob: 'Неравномерность',
@@ -44,22 +44,31 @@ function Predict() {
 
   // Функция запроса к Flask
   const predict = async () => {
+    // Проверяем, заполнены ли все поля
+    const hasEmptyFields = Object.values(params).some(value => value.trim() === "");
+    
+    if (hasEmptyFields) {
+      alert("Заполните все поля перед отправкой!");
+      return; // Прерываем выполнение функции
+    }
+  
     try {
-      console.log('Отправляем запрос с параметрами:', params); // Проверка входных данных
+      console.log('Отправляем запрос с параметрами:', params);
       const response = await axios.post('http://127.0.0.1:5000/predict', {
-        Diameter: parseFloat(params.Diameter) || 0,
-        Temperature: parseFloat(params.Temperature) || 0,
-        Pressure: parseFloat(params.Pressure) || 0,
-        Time: parseFloat(params.Time) || 0,
-        Thickness: parseFloat(params.Thickness) || 0, 
-        Mold_Temperature: parseFloat(params.Mold_Temperature) || 0,
-        Steam_Pressure: parseFloat(params.Steam_Pressure) || 0,
-        Heat_Rate: parseFloat(params.Heat_Rate) || 0
+        Diameter: parseFloat(params.Diameter),
+        Temperature: parseFloat(params.Temperature),
+        Pressure: parseFloat(params.Pressure),
+        Time: parseFloat(params.Time),
+        Thickness: parseFloat(params.Thickness),
+        Mold_Temperature: parseFloat(params.Mold_Temperature),
+        Steam_Pressure: parseFloat(params.Steam_Pressure),
+        Heat_Rate: parseFloat(params.Heat_Rate),
       });
-      console.log('Получен ответ:', response.data); // Проверка ответа
+      
+      console.log('Получен ответ:', response.data);
       setPredictions(response.data);
     } catch (error) {
-      console.error('Ошибка запроса:', error); // Вывод ошибки
+      console.error('Ошибка запроса:', error);
     }
   };
 
@@ -97,35 +106,41 @@ function Predict() {
                   // Очищаем любые символы, кроме чисел
                   e.target.value = e.target.value.replace(/[^0-9]/g, '');
                 }}
-                placeholder={key}
+                // placeholder={key}
               />
             </div>
           ))}
           <button onClick={predict}>Показать вероятность дефекта</button>
         </div>
         <div className="table-container">
-          {predictions && (
-            <div>
-              <h2>Вероятность:</h2>
-              <table border="1">
-                <thead>
-                  <tr>
-                    <th>Дефект:</th>
-                    <th>Вероятность:</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(predictions).map(([defect, prob]) => (
-                    <tr key={defect}>
-                      <td>{labels[defect]}</td>
-                      <td>{(prob * 100).toFixed(0)} %</td>
-                    </tr>
+          <h2>Вероятность:</h2>
+          <table border="1">
+            <thead>
+              <tr>
+                <th className="skr_l_u">Дефект:</th>
+                <th className="skr_r_u">Вероятность:</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.keys(labels).map((defect) => (
+                <tr key={defect}>
+                  <td>{labels[defect]}</td>
+                  <td>{predictions ? `${(predictions[defect] * 100).toFixed(0)} %` : ""}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="margin-block">
+            <h2>Предположительно проблемные параметры:</h2>
+                <ul className="issues-list">
+                  {predictions && predictions.Issues && predictions.Issues.map((issue, index) => (
+                    <li key={index}>{issue}</li>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                </ul>
+          </div>
         </div>
+        
+
       </div>
     </div>
   );

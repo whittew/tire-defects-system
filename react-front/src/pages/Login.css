@@ -1,0 +1,103 @@
+/* Основной контейнер */
+.login-container {
+    height: 100vh; /* Фиксируем высоту на весь экран */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 20px;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  /* Заголовок */
+  .login-container h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+  }
+
+  /* Форма */
+  .login-container form {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* Ограничение ширины */
+  }
+  
+  /* Поля ввода и метки */
+  .login-container div {
+    margin-bottom: 20px;
+  }
+  
+  .login-container label {
+    display: block;
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 5px;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .login-container input {
+    width: 380px; /* Фиксированная ширина, вместо 100% */
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .login-container input:focus {
+    border-color: #007bff; /* Синий при фокусе */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+  
+  /* Сообщение об ошибке */
+  .login-container p {
+    color: #e63946; /* Красный цвет для ошибки */
+    font-size: 0.9rem;
+    margin: 10px 0;
+    text-align: center;
+  }
+  
+  /* Кнопка */
+  .login-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .login-container button:hover {
+    background-color: #0056b3; /* Темнее при наведении */
+    transform: translateY(-2px); /* Лёгкий подъём */
+  }
+  
+  .login-container button:active {
+    transform: translateY(0); /* Возврат при клике */
+  }
+  
+  /* Адаптивность */
+  @media (max-width: 480px) {
+    .login-container form {
+      padding: 20px;
+      max-width: 100%;
+    }
+  
+    .login-container h2 {
+      font-size: 1.5rem;
+    }
+  }
