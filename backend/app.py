@@ -3,6 +3,7 @@ from flask_cors import CORS
 from probability import predict_bp
 from login import login_bp
 from db import db, Role
+from websocket import init_socketio
 from flask_sqlalchemy import SQLAlchemy
 
 # Инициализация Flask
@@ -17,6 +18,8 @@ CORS(app)
 app.register_blueprint(predict_bp)
 app.register_blueprint(login_bp)
 
+# Инициализация SocketIO
+init_socketio(app)
 
 @app.route('/')
 def index():

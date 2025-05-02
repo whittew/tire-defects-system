@@ -107,6 +107,7 @@ button:hover {
   border-radius: 20px; /* Скругляем углы */
   margin-left: -20px; /* Смещаем фон влево */
   margin-right: -20px; /* Смещаем фон вправо */
+  font-weight: bolder;
 }
 
 table {

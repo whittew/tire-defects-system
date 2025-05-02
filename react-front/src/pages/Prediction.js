@@ -139,8 +139,6 @@ function Predict() {
                 </ul>
           </div>
         </div>
-        
-
       </div>
     </div>
   );
