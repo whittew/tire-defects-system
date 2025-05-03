@@ -1,6 +1,5 @@
 import React from 'react';
 import { DefectProbability } from '../types';
-import ProgressBar from './ui/ProgressBar';
 import Button from './ui/Button';
 import { Download } from 'lucide-react';
 
@@ -54,9 +53,7 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Type
               </th>
-              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Description
-              </th>
+
               <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Risk Level
               </th>
@@ -78,16 +75,7 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({
                     {defect.name}
                   </div>
                 </td>
-                <td className="px-4 py-4 text-sm text-gray-500">
-                  <div className="max-w-md">
-                    <ProgressBar 
-                      value={defect.probability} 
-                      colorScale={true}
-                      animated={true}
-                      size="sm"
-                    />
-                  </div>
-                </td>
+
                 <td className="px-4 py-4 whitespace-nowrap text-right text-sm">
                   <span 
                     className={`

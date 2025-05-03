@@ -1,46 +1,102 @@
 from flask_sqlalchemy import SQLAlchemy
-
+from datetime import datetime
 
 db = SQLAlchemy()
 
+class Operator(db.Model):
+    __tablename__ = 'operator'
 
-class Role(db.Model):
-    __tablename__ = 'role'
+    id = db.Column(db.Integer, primary_key=True)
+    full_name = db.Column(db.String, nullable=False)
+    role = db.Column(db.String, nullable=False)
+    shift = db.Column(db.String, nullable=False)
 
-    index = db.Column(db.Integer, primary_key=True)
-    role_users = db.Column(db.String(1024), unique=True, nullable=False)
-
-    def __init__(self, index, role_users):  # Обновлено имя аргумента
-        self.index = index
-        self.role_users = role_users
-
-    def __repr__(self):
-        return f'<Role {self.role_users}>'
+    errors = db.relationship('ErrorLog', backref='operator', lazy=True)
+    analysis_logs = db.relationship('AnalysisLog', backref='operator', lazy=True)
 
 
-class Users(db.Model):
-    __tablename__ = 'users'
+class ErrorLog(db.Model):
+    __tablename__ = 'error_log'
 
-    id = db.Column(db.Integer, primary_key=True,
-                   autoincrement=True)  # serial эквивалент
-    # role = db.Column(db.Integer, nullable=False)  # int4
-    firstname = db.Column(db.String(1024), nullable=False)  # varchar
-    secondname = db.Column(db.String(1024), nullable=False)  # varchar
-    surname = db.Column(db.String(1024), nullable=False)  # varchar
-    login = db.Column(db.String(1024), nullable=False)  # varchar
-    password = db.Column(db.String(1024), nullable=False)  # varchar
+    id = db.Column(db.Integer, primary_key=True)
+    date_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    operator_id = db.Column(db.Integer, db.ForeignKey('operator.id'), nullable=False)
+    description = db.Column(db.String, nullable=False)
 
-    # Определение внешнего ключа
-    role = db.Column(db.Integer, db.ForeignKey(
-        'role.index', ondelete='CASCADE'), nullable=False)
 
-    # Ссылка на модель Role, если она существует
-    role_relationship = db.relationship('Role', backref='users', lazy=True)
+class Tire(db.Model):
+    __tablename__ = 'tire'
 
-    def __init__(self, firstname, secondname, surname, login, password, role):
-        self.firstname = firstname
-        self.secondname = secondname
-        self.surname = surname
-        self.login = login
-        self.password = password
-        self.role = role
+    id = db.Column(db.Integer, primary_key=True)
+    serial_number = db.Column(db.String, nullable=False)
+    image_url = db.Column(db.String)
+
+    analysis_logs = db.relationship('AnalysisLog', backref='tire', lazy=True)
+    defects = db.relationship('TireDefect', backref='tire', lazy=True)
+    parameters = db.relationship('ParameterLog', backref='tire', lazy=True)
+
+
+class AnalysisLog(db.Model):
+    __tablename__ = 'analysis_log'
+
+    id = db.Column(db.Integer, primary_key=True)
+    date_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    operator_id = db.Column(db.Integer, db.ForeignKey('operator.id'), nullable=False)
+    tire_id = db.Column(db.Integer, db.ForeignKey('tire.id'), nullable=False)
+
+
+class DefectSeverity(db.Model):
+    __tablename__ = 'defect_severity'
+
+    id = db.Column(db.Integer, primary_key=True)
+    severity_level = db.Column(db.String, nullable=False)
+    description = db.Column(db.String)
+
+    defects = db.relationship('Defect', backref='severity', lazy=True)
+
+
+class Solution(db.Model):
+    __tablename__ = 'solution'
+
+    id = db.Column(db.Integer, primary_key=True)
+    action = db.Column(db.String)
+    description = db.Column(db.String)
+
+    defects = db.relationship('Defect', backref='solution', lazy=True)
+
+
+class Defect(db.Model):
+    __tablename__ = 'defect'
+
+    id = db.Column(db.Integer, primary_key=True)
+    defect_name = db.Column(db.String, nullable=False)
+    description = db.Column(db.String, nullable=False)
+    reason = db.Column(db.String, nullable=False)
+    defect_severity_id = db.Column(db.Integer, db.ForeignKey('defect_severity.id'), nullable=False)
+    solution_id = db.Column(db.Integer, db.ForeignKey('solution.id'), nullable=False)
+
+    tire_defects = db.relationship('TireDefect', backref='defect', lazy=True)
+
+
+class TireDefect(db.Model):
+    __tablename__ = 'tire_defect'
+
+    id = db.Column(db.Integer, primary_key=True)
+    tire_id = db.Column(db.Integer, db.ForeignKey('tire.id'), nullable=False)
+    defect_id = db.Column(db.Integer, db.ForeignKey('defect.id'), nullable=False)
+    count = db.Column(db.Integer, default=1, nullable=False)
+
+
+class ParameterLog(db.Model):
+    __tablename__ = 'parameter_log'
+
+    id = db.Column(db.Integer, primary_key=True)
+    tire_id = db.Column(db.Integer, db.ForeignKey('tire.id'), nullable=False)
+    diameter = db.Column(db.Float)
+    temperature = db.Column(db.Float)
+    pressure = db.Column(db.Float)
+    time = db.Column(db.Float)
+    thickness = db.Column(db.Float)
+    mold_temperature = db.Column(db.Float)
+    steam_pressure = db.Column(db.Float)
+    heat_rate = db.Column(db.Float)

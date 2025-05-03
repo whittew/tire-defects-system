@@ -31,6 +31,17 @@ export interface Preset {
 
 export type ValidationStatus = 'valid' | 'warning' | 'error' | 'none';
 
+export interface SensorParams {
+  Diameter: number;
+  Temperature: number;
+  Pressure: number;
+  Time: number;
+  Thickness: number;
+  Mold_Temperature: number;
+  Steam_Pressure: number;
+  Heat_Rate: number;
+}
+
 export interface AppState {
   parameters: Record<string, Parameter>;
   loading: boolean;

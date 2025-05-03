@@ -53,6 +53,7 @@ const InputPanel: React.FC<InputPanelProps> = ({
           status={validateParameter(param)}
           min={param.min}
           max={param.max}
+          disabled={true}
         />
       ))}
 

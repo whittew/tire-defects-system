@@ -1,10 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 from flask_cors import CORS
 from probability import predict_bp
-from login import login_bp
-from db import db, Role
+from db import db
 from websocket import init_socketio
-from flask_sqlalchemy import SQLAlchemy
 
 # Инициализация Flask
 app = Flask(__name__)
@@ -16,20 +14,9 @@ CORS(app)
 
 # Регистрация маршрутов
 app.register_blueprint(predict_bp)
-app.register_blueprint(login_bp)
 
 # Инициализация SocketIO
 init_socketio(app)
-
-@app.route('/')
-def index():
-    try:
-        roles = Role.query.all()
-        # Обновлено на role_users
-        return f"Found {len(roles)} roles: {[r.role_users for r in roles]}"
-    except Exception as e:
-        return f"Error: {str(e)}"
-
 
 if __name__ == '__main__':
     app.run(debug=True)

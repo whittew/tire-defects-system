@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
+from db import db, Tire, ParameterLog, AnalysisLog, TireDefect, Defect, Operator
+from datetime import datetime
 import tensorflow as tf
 from tensorflow.keras.models import load_model
-from sklearn.preprocessing import StandardScaler
-from flask_cors import CORS
 import numpy as np
 import pickle
 
@@ -37,11 +37,11 @@ def process_prediction(data):
 
     # Формирование результата
     result = {
-        'Normal_Prob': round(float(prediction[0]), 2) * 100,
-        'Bubble_Prob': round(float(prediction[1]), 2) * 100,
-        'Crack_Prob': round(float(prediction[2]), 2) * 100,
-        'Uneven_Prob': round(float(prediction[3]), 2) * 100,
-        'Damage_Prob': round(float(prediction[4]), 2) * 100
+        'Normal_Prob': int(round(float(prediction[0]), 2) * 100),
+        'Bubble_Prob': int(round(float(prediction[1]), 2) * 100),
+        'Crack_Prob': int(round(float(prediction[2]), 2) * 100),
+        'Uneven_Prob': int(round(float(prediction[3]), 2) * 100),
+        'Damage_Prob': int(round(float(prediction[4]), 2) * 100)
     }
 
     # Анализ параметров (логика из твоего кода)
@@ -49,7 +49,7 @@ def process_prediction(data):
     d, t, p, tm, th, mt, sp, hr = params[0]
 
     if d == 15:
-        if t > 195:
+        if (t > 195) or (t < 175):
             issues.append({
                 "message": f"Температура вулканизации ({t}°C) выше нормы (175–195)",
                 "severity": "high"
@@ -141,7 +141,7 @@ def process_prediction(data):
     return {
         "params": data,
         "predictions": {
-            'Normal_Prob': result['Normal_Prob'],
+            #'Normal_Prob': result['Normal_Prob'],
             'Bubble_Prob': result['Bubble_Prob'],
             'Crack_Prob': result['Crack_Prob'],
             'Uneven_Prob': result['Uneven_Prob'],
@@ -154,6 +154,85 @@ def process_prediction(data):
 def predict():
     data = request.get_json()
     result = process_prediction(data)
+
+    # 1. Найдём или создадим шину
+    serial_number = data.get("Serial_Number", f"AUTO_{datetime.now().isoformat()}")
+    tire = Tire.query.filter_by(serial_number=serial_number).first()
+    if not tire:
+        tire = Tire(serial_number=serial_number)
+        db.session.add(tire)
+        db.session.commit()
+
+    # 2. Сохраняем параметры в parameter_log
+    param_log = ParameterLog(
+        tire_id=tire.id,
+        diameter=data['Diameter'],
+        temperature=data['Temperature'],
+        pressure=data['Pressure'],
+        time=data['Time'],
+        thickness=data['Thickness'],
+        mold_temperature=data['Mold_Temperature'],
+        steam_pressure=data['Steam_Pressure'],
+        heat_rate=data['Heat_Rate']
+    )
+    db.session.add(param_log)
+
+    # 3. Анализ лог (пока условный оператор с id=1)
+    operator = Operator.query.get(1)  # можно потом сделать выбор вручную
+    analysis_log = AnalysisLog(
+        operator_id=operator.id,
+        tire_id=tire.id
+    )
+    db.session.add(analysis_log)
+
+    # 4. Обработка дефектов
+    for defect_key, prob in result['predictions'].items():
+        if prob > 20:  # допустим, считаем это дефектом при > 20%
+            defect = Defect.query.filter_by(defect_name=defect_key).first()
+            if defect:
+                tire_defect = TireDefect(
+                    tire_id=tire.id,
+                    defect_id=defect.id,
+                    count=1
+                )
+                db.session.add(tire_defect)
+
+    # 6. Определим порог вероятности, выше которого считаем, что дефект есть
+    threshold = 0  # %
+
+    # 7. Создание записей в tire_defect
+    for key, prob in result['predictions'].items():
+        if prob >= threshold:
+            defect_name_map = {
+                'Bubble_Prob': 'Bubbles',
+                'Crack_Prob': 'Cracks',
+                'Uneven_Prob': 'Uneven',
+                'Damage_Prob': 'Damage'
+            }
+
+            defect_name = defect_name_map.get(key)
+            defect = Defect.query.filter_by(defect_name=defect_name).first()
+
+            if defect:
+                tire_defect = TireDefect(tire_id=tire.id, defect_id=defect.id, count=1)
+                db.session.add(tire_defect)
+                print(f"[LOG] Записан дефект: {defect.defect_name} (вероятность: {prob}%)")
+
+    # 5. Финализируем запись
+    db.session.commit()
+
+    print(f"[LOG] В БД записана шина с номером: {tire.serial_number}")
+    print(
+        f"[LOG] Параметры: Диаметр={param_log.diameter}, Температура={param_log.temperature}, Давление={param_log.pressure}")
+    print(f"[LOG] Анализ проведён оператором: {operator.full_name} (смена: {operator.shift})")
+
+    if result['predictions']:
+        print(f"[LOG] Предсказанные дефекты (если есть):")
+        for defect_key, prob in result['predictions'].items():
+            if prob > 20:
+                print(f" - {defect_key} ({prob:.2f}%)")
+    print("[LOG] Запись завершена\n")
+
     return jsonify({
         "predictions": result['predictions'],
         "warnings": result['warnings']

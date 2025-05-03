@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
 import InputPanel from './components/InputPanel';
@@ -7,6 +7,7 @@ import WarningsPanel from './components/WarningsPanel';
 import { AppState, Preset } from './types';
 import { DefectProbability} from "./types";
 import { getInitialParametersState } from './data/parameters';
+import {io, Socket} from 'socket.io-client';
 
 function App() {
   const [state, setState] = useState<AppState>({
@@ -16,6 +17,54 @@ function App() {
     warnings: [],
     lastAnalyzed: null,
   });
+
+  const defectNames: Record<string, string> = {
+    Bubble_Prob: 'Пузыри',
+    Crack_Prob: 'Трещины',
+    Uneven_Prob: 'Неравномерность',
+    Damage_Prob: 'Повреждения',
+  };
+
+  useEffect(() => {
+    const socket: Socket = io('http://localhost:5000');
+
+    socket.on('connect', () => {
+      console.log('✅ WebSocket connected');
+    });
+
+    socket.on('sensor_data', (data) => {
+      console.log('📡 Пришли данные от сервера:', data);
+
+      // Обновляем параметры
+      const updated = { ...state.parameters };
+      Object.entries(data.params).forEach(([key, value]) => {
+        if (updated[key]) {
+          updated[key] = {
+            ...updated[key],
+            value: value as number
+          };
+        }
+      });
+
+      setState(prev => ({
+        ...prev,
+        parameters: updated,
+        results: data.predictions
+            ? Object.entries(data.predictions).map(([key, value]) => ({
+              id: key,
+              name: defectNames[key] || key,
+              probability: Number(value),
+              description: ''
+            }))
+            : prev.results,
+        warnings: data.warnings || prev.warnings
+      }));
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const handleParameterChange = (id: string, value: number | '') => {
     setState(prevState => ({
